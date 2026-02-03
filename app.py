@@ -1,80 +1,100 @@
-
-from flask import Flask
+from flask import Flask, render_template_string
 import os
 
 app = Flask(__name__)
 
-@app.route('/')
-def home():
-    return """
+login_page = """
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <title>อย่าเข้ามา</title>
-    <style>
-        body {
-            background: radial-gradient(circle at center, #0a0a0a, #000);
-            color: #ff1a1a;
-            font-family: 'Segoe UI', sans-serif;
-            text-align: center;
-            margin: 0;
-            /* จัดกึ่งกลางหน้าจอแบบสมบูรณ์ */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            animation: shake 0.15s infinite alternate;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login</title>
 
-        h1 {
-            font-size: 8em; /* ขนาดใหญ่ยักษ์ */
-            margin: 0;
-            text-shadow: 0 0 20px red, 0 0 50px darkred;
-            animation: glitch 1s infinite;
-        }
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fad0c4);
+}
 
-        p {
-            color: #ddd;
-            font-size: 2em;
-            margin-top: 20px;
-        }
+.box {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    padding: 50px;
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
 
-        .warning {
-            margin-top: 40px;
-            color: crimson;
-            font-size: 1.2em;
-            animation: blink 1.2s infinite;
-        }
+button {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff4d94, #ff8fb1);
+    color: white;
+    transition: transform 0.3s;
+}
 
-        @keyframes glitch {
-            0% { transform: translate(0); }
-            20% { transform: translate(-3px, 3px); }
-            40% { transform: translate(3px, -3px); }
-            100% { transform: translate(0); }
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-        @keyframes shake {
-            from { transform: translateX(-1px); }
-            to { transform: translateX(1px); }
-        }
-    </style>
+button:hover {
+    transform: scale(1.1);
+}
+</style>
 </head>
+
 <body>
-    <h1>จีโน่เป็นเกย์</h1>
-    <p>อ่านทำไมอ่านไปเขาก็ไม่กลับมารักหรอก😝</p>
-    <div class="warning">ระบบกำลังจับตาดูคุณอยู่...</div>
+    <div class="box">
+        <form action="/inside">
+            <button type="submit">➡️</button>
+        </form>
+    </div>
 </body>
 </html>
 """
 
+inside_page = """
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Inside</title>
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+h1 {
+    color: white;
+    font-size: 5rem;
+}
+</style>
+</head>
+<body>
+    <h1>ควย</h1>
+</body>
+</html>
+"""
+
+@app.route("/")
+def login():
+    return render_template_string(login_page)
+
+@app.route("/inside")
+def inside():
+    return render_template_string(inside_page)
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host="0.0.0.0", port=port)
