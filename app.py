@@ -373,21 +373,25 @@ def login():
 
 
 
-        if user and check_password_hash(
-            user[0],
-            password
-        ):
+        if user:
+
+    if check_password_hash(user[0], password):
+
+        session["user"] = username
+
+        return redirect("/home")
+
+    else:
+        return "รหัสผ่านผิด"
+
+else:
+    return "ไม่พบผู้ใช้"
 
 
-            session["user"]=username
 
-
-            return redirect("/home")
-
-
-
-    return render_template_string(login_page)
-
+    return render_template_string(
+    login_page
+)
 
 
 
