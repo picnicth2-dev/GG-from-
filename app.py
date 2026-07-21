@@ -212,3 +212,265 @@ text-decoration:none;
 </style>
 
 """
+# =====================
+# LOGIN PAGE
+# =====================
+
+def login_page(message=""):
+
+    return f"""
+
+<html>
+
+<head>
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+{style}
+
+</head>
+
+
+<body>
+
+
+<div class="box">
+
+
+<h2>
+เข้าสู่ระบบ
+</h2>
+
+
+{message}
+
+
+
+<form method="post">
+
+
+<input 
+name="username"
+placeholder="ชื่อผู้ใช้">
+
+
+<input 
+id="login_password"
+name="password"
+type="password"
+placeholder="รหัสผ่าน">
+
+
+
+<button type="button"
+onclick="showLoginPassword()">
+
+👁 ดูรหัสผ่าน
+
+</button>
+
+
+
+<button>
+เข้าสู่ระบบ
+</button>
+
+
+</form>
+
+
+<br>
+
+
+<a href="/register">
+
+สมัครสมาชิก
+
+</a>
+
+
+
+</div>
+
+
+
+<script>
+
+function showLoginPassword(){
+
+let x=document.getElementById(
+"login_password"
+);
+
+
+if(x.type==="password"){
+
+x.type="text";
+
+}
+
+else{
+
+x.type="password";
+
+}
+
+}
+
+</script>
+
+
+
+</body>
+
+</html>
+
+"""
+
+
+
+# =====================
+# REGISTER PAGE
+# =====================
+
+def register_page(message=""):
+
+
+    return f"""
+
+<html>
+
+
+<head>
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+
+{style}
+
+
+</head>
+
+
+
+<body>
+
+
+
+<div class="box">
+
+
+<h2>
+สมัครสมาชิก
+</h2>
+
+
+
+{message}
+
+
+
+
+<form method="post">
+
+
+
+<input
+name="username"
+placeholder="ชื่อผู้ใช้">
+
+
+
+<input
+id="register_password"
+name="password"
+type="password"
+placeholder="รหัสผ่าน">
+
+
+
+<button type="button"
+onclick="showRegisterPassword()">
+
+
+👁 ดูรหัสผ่าน
+
+
+</button>
+
+
+
+<button>
+
+สมัครสมาชิก
+
+</button>
+
+
+
+</form>
+
+
+
+<br>
+
+
+
+<a href="/">
+
+กลับหน้า Login
+
+</a>
+
+
+
+</div>
+
+
+
+
+<script>
+
+
+function showRegisterPassword(){
+
+
+let x=document.getElementById(
+"register_password"
+);
+
+
+
+if(x.type==="password"){
+
+
+x.type="text";
+
+
+}
+
+else{
+
+
+x.type="password";
+
+
+}
+
+
+}
+
+
+</script>
+
+
+
+</body>
+
+
+</html>
+
+
+"""
