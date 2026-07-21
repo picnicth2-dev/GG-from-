@@ -8,7 +8,6 @@ app = Flask(__name__)
 app.secret_key = "ayano_secret_key"
 
 
-
 # =====================
 # DATABASE
 # =====================
@@ -47,6 +46,7 @@ def database():
 
 
     conn.commit()
+
     conn.close()
 
 
@@ -212,6 +212,9 @@ text-decoration:none;
 </style>
 
 """
+
+
+
 # =====================
 # LOGIN PAGE
 # =====================
@@ -300,34 +303,7 @@ onclick="showLoginPassword()">
 function showLoginPassword(){
 
 let x=document.getElementById(
-"login_password"
-);
-
-
-if(x.type==="password"){
-
-x.type="text";
-
-}
-
-else{
-
-x.type="password";
-
-}
-
-}
-
-</script>
-
-
-
-</body>
-
-</html>
-
-"""
-
+"
 
 
 # =====================
@@ -336,27 +312,21 @@ x.type="password";
 
 def register_page(message=""):
 
-
     return f"""
 
 <html>
-
 
 <head>
 
 <meta name="viewport"
 content="width=device-width,initial-scale=1">
 
-
 {style}
-
 
 </head>
 
 
-
 <body>
-
 
 
 <div class="box">
@@ -367,20 +337,16 @@ content="width=device-width,initial-scale=1">
 </h2>
 
 
-
 {message}
-
 
 
 
 <form method="post">
 
 
-
 <input
 name="username"
 placeholder="ชื่อผู้ใช้">
-
 
 
 <input
@@ -394,9 +360,7 @@ placeholder="รหัสผ่าน">
 <button type="button"
 onclick="showRegisterPassword()">
 
-
 👁 ดูรหัสผ่าน
-
 
 </button>
 
@@ -409,13 +373,11 @@ onclick="showRegisterPassword()">
 </button>
 
 
-
 </form>
 
 
 
 <br>
-
 
 
 <a href="/">
@@ -430,9 +392,7 @@ onclick="showRegisterPassword()">
 
 
 
-
 <script>
-
 
 function showRegisterPassword(){
 
@@ -445,23 +405,18 @@ let x=document.getElementById(
 
 if(x.type==="password"){
 
-
 x.type="text";
-
 
 }
 
 else{
 
-
 x.type="password";
 
-
 }
 
 
 }
-
 
 </script>
 
@@ -469,29 +424,32 @@ x.type="password";
 
 </body>
 
-
 </html>
 
-
 """
-# =====================
-# LOGIN SYSTEM
-# =====================
 
+
+
+# =====================
+# LOGIN
+# =====================
 
 @app.route("/", methods=["GET","POST"])
 def login():
 
     if request.method == "POST":
 
+
         username = request.form["username"]
 
         password = request.form["password"]
 
 
+
         conn = sqlite3.connect("users.db")
 
         cur = conn.cursor()
+
 
 
         cur.execute(
@@ -524,7 +482,6 @@ def login():
 
             else:
 
-
                 return login_page(
                 """
                 <div class="message error">
@@ -535,7 +492,6 @@ def login():
 
 
         else:
-
 
             return login_page(
             """
@@ -557,7 +513,6 @@ def login():
 # REGISTER
 # =====================
 
-
 @app.route("/register", methods=["GET","POST"])
 def register():
 
@@ -573,7 +528,6 @@ def register():
         )
 
 
-
         try:
 
 
@@ -584,12 +538,16 @@ def register():
 
 
             cur.execute(
-                "INSERT INTO users(username,password) VALUES(?,?)",
+                """
+                INSERT INTO users(username,password)
+                VALUES(?,?)
+                """,
                 (
                     username,
                     password
                 )
             )
+
 
 
             conn.commit()
@@ -631,7 +589,6 @@ def register():
 # HOME
 # =====================
 
-
 @app.route("/home", methods=["GET","POST"])
 def home():
 
@@ -656,4 +613,205 @@ def home():
 
         cur.execute(
             """
-           
+            INSERT INTO data(username,content)
+            VALUES(?,?)
+            """,
+            (
+                session["user"],
+                content
+            )
+        )
+
+
+        conn.commit()
+
+
+
+    cur.execute(
+        """
+        SELECT id,content
+        FROM data
+        WHERE username=?
+        """,
+        (
+            session["user"],
+        )
+    )
+
+
+    datas = cur.fetchall()
+
+
+    conn.close()
+
+
+
+    items = ""
+
+
+    for item in datas:
+
+
+        items += f"""
+
+        <div class="card">
+
+        {item[1]}
+
+        <br>
+
+        <a href="/delete/{item[0]}">
+
+        🗑 ลบ
+
+        </a>
+
+        </div>
+
+        """
+
+
+
+    return render_template_string(
+    f"""
+
+<html>
+
+<head>
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+{style}
+
+</head>
+
+
+<body>
+
+
+<div class="box">
+
+
+<h2>
+สวัสดี {session["user"]}
+</h2>
+
+
+
+<form method="post">
+
+
+<input
+name="content"
+placeholder="ข้อมูลที่ต้องการบันทึก">
+
+
+<button>
+
+บันทึก
+
+</button>
+
+
+</form>
+
+
+
+<h3>
+ข้อมูลของฉัน
+</h3>
+
+
+{items}
+
+
+
+<a href="/logout">
+
+ออกจากระบบ
+
+</a>
+
+
+</div>
+
+
+</body>
+
+</html>
+
+"""
+    )
+
+
+
+
+# =====================
+# DELETE
+# =====================
+
+@app.route("/delete/<int:id>")
+def delete(id):
+
+
+    if "user" not in session:
+
+        return redirect("/")
+
+
+
+    conn = sqlite3.connect("users.db")
+
+    cur = conn.cursor()
+
+
+
+    cur.execute(
+        """
+        DELETE FROM data
+        WHERE id=? AND username=?
+        """,
+        (
+            id,
+            session["user"]
+        )
+    )
+
+
+    conn.commit()
+
+    conn.close()
+
+
+
+    return redirect("/home")
+
+
+
+
+
+# =====================
+# LOGOUT
+# =====================
+
+@app.route("/logout")
+def logout():
+
+
+    session.clear()
+
+
+    return redirect("/")
+
+
+
+
+
+# =====================
+# RUN
+# =====================
+
+if __name__ == "__main__":
+
+    app.run(debug=True)
