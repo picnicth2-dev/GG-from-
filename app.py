@@ -22,18 +22,26 @@ def database():
 
     cur.execute("""
     CREATE TABLE IF NOT EXISTS users(
+
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+
         username TEXT UNIQUE,
+
         password TEXT
+
     )
     """)
 
 
     cur.execute("""
     CREATE TABLE IF NOT EXISTS data(
+
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+
         username TEXT,
+
         content TEXT
+
     )
     """)
 
@@ -52,28 +60,39 @@ database()
 # STYLE
 # =====================
 
-style="""
+style = """
 
 <style>
 
+*{
+box-sizing:border-box;
+font-family:Arial;
+}
+
+
 body{
 
-height:100vh;
+min-height:100vh;
+
 display:flex;
+
 justify-content:center;
+
 align-items:center;
+
+padding:20px;
 
 background:
 linear-gradient(135deg,#74c0fc,#228be6);
 
-font-family:Arial;
-
 }
+
 
 
 .box{
 
-width:90%;
+width:100%;
+
 max-width:360px;
 
 background:white;
@@ -102,7 +121,10 @@ border-radius:10px;
 
 border:1px solid #ccc;
 
+font-size:16px;
+
 }
+
 
 
 button{
@@ -126,13 +148,28 @@ font-size:17px;
 }
 
 
-a{
 
-text-decoration:none;
+a{
 
 color:#1976d2;
 
+text-decoration:none;
+
 }
+
+
+.card{
+
+background:#eee;
+
+padding:12px;
+
+margin:10px 0;
+
+border-radius:10px;
+
+}
+
 
 </style>
 
@@ -141,11 +178,10 @@ color:#1976d2;
 
 
 # =====================
-# LOGIN
+# LOGIN PAGE
 # =====================
 
-
-login_page=f"""
+login_page = f"""
 
 <html>
 
@@ -192,6 +228,7 @@ placeholder="รหัสผ่าน">
 
 <br>
 
+
 <a href="/register">
 สมัครสมาชิก
 </a>
@@ -208,13 +245,11 @@ placeholder="รหัสผ่าน">
 
 
 
-
 # =====================
-# REGISTER
+# REGISTER PAGE
 # =====================
 
-
-register_page=f"""
+register_page = f"""
 
 <html>
 
@@ -259,6 +294,9 @@ placeholder="รหัสผ่าน">
 </form>
 
 
+<br>
+
+
 <a href="/">
 กลับหน้า Login
 </a>
@@ -276,75 +314,15 @@ placeholder="รหัสผ่าน">
 
 
 
-# =====================
-# HOME
-# =====================
-
-
-home_page=f"""
-
-<html>
-
-<head>
-
-<meta name="viewport"
-content="width=device-width,initial-scale=1">
-
-{style}
-
-</head>
-
-
-<body>
-
-
-<div class="box">
-
-
-<h2>
-สวัสดี {{user}}
-</h2>
-
-
-<form method="post">
-
-
-<input name="content"
-placeholder="บันทึกข้อมูล">
-
-
-<button>
-บันทึก
-</button>
-
-
-</form>
-
-
-<a href="/logout">
-ออกจากระบบ
-</a>
-
-
-</div>
-
-
-</body>
-
-</html>
-
-"""
-
-
 
 # =====================
-# ROUTES
+# LOGIN
 # =====================
-
 
 
 @app.route("/",methods=["GET","POST"])
 def login():
+
 
     if request.method=="POST":
 
@@ -360,9 +338,13 @@ def login():
         cur=conn.cursor()
 
 
+
         cur.execute(
+
         "SELECT password FROM users WHERE username=?",
+
         (username,)
+
         )
 
 
@@ -375,29 +357,46 @@ def login():
 
         if user:
 
-    if check_password_hash(user[0], password):
 
-        session["user"] = username
-
-        return redirect("/home")
-
-    else:
-        return "รหัสผ่านผิด"
-
-else:
-    return "ไม่พบผู้ใช้"
+            if check_password_hash(
+                user[0],
+                password
+            ):
 
 
-
-    return render_template_string(
-    login_page
-)
+                session["user"]=username
 
 
+                return redirect("/home")
+
+
+            else:
+
+                return "รหัสผ่านผิด"
+
+
+
+        else:
+
+            return "ไม่พบผู้ใช้"
+
+
+
+    return render_template_string(login_page)
+
+
+
+
+
+
+# =====================
+# REGISTER
+# =====================
 
 
 @app.route("/register",methods=["GET","POST"])
 def register():
+
 
     if request.method=="POST":
 
@@ -409,16 +408,22 @@ def register():
         )
 
 
+
         try:
+
 
             conn=sqlite3.connect("users.db")
 
             cur=conn.cursor()
 
 
+
             cur.execute(
+
             "INSERT INTO users(username,password) VALUES(?,?)",
+
             (username,password)
+
             )
 
 
@@ -427,7 +432,10 @@ def register():
             conn.close()
 
 
+
             return redirect("/")
+
+
 
         except:
 
@@ -442,6 +450,11 @@ def register():
 
 
 
+# =====================
+# HOME
+# =====================
+
+
 @app.route("/home",methods=["GET","POST"])
 def home():
 
@@ -452,4 +465,213 @@ def home():
 
 
 
-   
+    conn=sqlite3.connect("users.db")
+
+    cur=conn.cursor()
+
+
+
+    if request.method=="POST":
+
+
+        content=request.form["content"]
+
+
+        cur.execute(
+
+        "INSERT INTO data(username,content) VALUES(?,?)",
+
+        (
+
+        session["user"],
+
+        content
+
+        )
+
+        )
+
+
+        conn.commit()
+
+
+
+
+    cur.execute(
+
+    "SELECT id,content FROM data WHERE username=?",
+
+    (session["user"],)
+
+    )
+
+
+    datas=cur.fetchall()
+
+
+    conn.close()
+
+
+
+    items=""
+
+
+    for d in datas:
+
+
+        items += f"""
+
+        <div class="card">
+
+        {d[1]}
+
+        <br>
+
+        <a href="/delete/{d[0]}">
+        ลบ
+        </a>
+
+        </div>
+
+        """
+
+
+
+    return render_template_string(f"""
+
+    <html>
+
+    <head>
+
+    <meta name="viewport"
+    content="width=device-width,initial-scale=1">
+
+    {style}
+
+    </head>
+
+
+    <body>
+
+
+    <div class="box">
+
+
+    <h2>
+    สวัสดี {session["user"]}
+    </h2>
+
+
+
+    <form method="post">
+
+
+    <input name="content"
+    placeholder="ข้อมูลที่ต้องการบันทึก">
+
+
+    <button>
+    บันทึก
+    </button>
+
+
+    </form>
+
+
+    <hr>
+
+
+    <h3>
+    ข้อมูลของฉัน
+    </h3>
+
+
+    {items}
+
+
+
+    <a href="/logout">
+    ออกจากระบบ
+    </a>
+
+
+    </div>
+
+
+    </body>
+
+    </html>
+
+    """)
+
+
+
+
+
+# =====================
+# DELETE
+# =====================
+
+
+@app.route("/delete/<int:id>")
+def delete(id):
+
+
+    if "user" not in session:
+
+        return redirect("/")
+
+
+
+    conn=sqlite3.connect("users.db")
+
+    cur=conn.cursor()
+
+
+
+    cur.execute(
+
+    "DELETE FROM data WHERE id=? AND username=?",
+
+    (
+
+    id,
+
+    session["user"]
+
+    )
+
+    )
+
+
+    conn.commit()
+
+    conn.close()
+
+
+
+    return redirect("/home")
+
+
+
+
+
+# =====================
+# LOGOUT
+# =====================
+
+
+@app.route("/logout")
+def logout():
+
+    session.clear()
+
+    return redirect("/")
+
+
+
+
+
+if __name__=="__main__":
+
+    app.run(debug=True)
