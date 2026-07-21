@@ -1,169 +1,141 @@
-from flask import Flask, render_template_string, request
+from flask import Flask, request, render_template_string, redirect, session
+import sqlite3
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 app = Flask(__name__)
 
+app.secret_key = "ayano_secret_key"
 
-style = """
+
+
+# =====================
+# DATABASE
+# =====================
+
+def database():
+
+    conn = sqlite3.connect("users.db")
+
+    cur = conn.cursor()
+
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS users(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT
+    )
+    """)
+
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS data(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        content TEXT
+    )
+    """)
+
+
+    conn.commit()
+
+    conn.close()
+
+
+
+database()
+
+
+
+# =====================
+# STYLE
+# =====================
+
+style="""
+
 <style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Arial',sans-serif;
-}
-
 
 body{
 
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:20px;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
 
-    background:
-    linear-gradient(135deg,
-    #74c0fc,
-    #228be6);
+background:
+linear-gradient(135deg,#74c0fc,#228be6);
+
+font-family:Arial;
 
 }
 
-
-/* กล่องหลัก */
 
 .box{
 
-    width:100%;
-    max-width:360px;
+width:90%;
+max-width:360px;
 
-    padding:30px 25px;
+background:white;
 
-    background:
-    rgba(255,255,255,0.20);
+padding:30px;
 
-    backdrop-filter:blur(15px);
+border-radius:20px;
 
-    border-radius:25px;
+text-align:center;
 
-    text-align:center;
-
-    box-shadow:
-    0 15px 40px rgba(0,0,0,.25);
-
-    animation:
-    show .5s ease;
+box-shadow:0 10px 30px #555;
 
 }
 
 
-@keyframes show{
-
-from{
-
-opacity:0;
-transform:translateY(30px);
-
-}
-
-to{
-
-opacity:1;
-transform:translateY(0);
-
-}
-
-}
-
-
-
-h1,h2{
-
-color:white;
-
-margin-bottom:25px;
-
-font-size:28px;
-
-}
-
-
-
-/* ช่องกรอก */
 
 input{
 
 width:100%;
 
-padding:15px;
+padding:14px;
 
-border:none;
+margin:8px 0;
 
-outline:none;
+border-radius:10px;
 
-border-radius:15px;
-
-font-size:16px;
-
-margin-bottom:15px;
+border:1px solid #ccc;
 
 }
 
-
-
-/* ปุ่ม */
 
 button{
 
 width:100%;
 
-padding:15px;
+padding:14px;
+
+margin-top:10px;
 
 border:none;
 
-border-radius:15px;
+border-radius:10px;
 
 background:#1976d2;
 
 color:white;
 
-font-size:18px;
-
-font-weight:bold;
-
-cursor:pointer;
-
-margin-top:10px;
-
-transition:.2s;
+font-size:17px;
 
 }
 
 
+a{
 
-button:active{
+text-decoration:none;
 
-transform:scale(.95);
-
-}
-
-
-
-.credit{
-
-color:white;
-
-margin-top:20px;
-
-font-size:14px;
-
-opacity:.8;
+color:#1976d2;
 
 }
-
-
 
 </style>
+
 """
 
 
@@ -173,18 +145,14 @@ opacity:.8;
 # =====================
 
 
-login_page = f"""
-
-<!DOCTYPE html>
+login_page=f"""
 
 <html>
 
 <head>
 
 <meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-<title>Ayano</title>
+content="width=device-width,initial-scale=1">
 
 {style}
 
@@ -197,28 +165,36 @@ content="width=device-width, initial-scale=1.0">
 <div class="box">
 
 
-<h1>
-Ayano
-</h1>
-
-
 <h2>
-ยินดีต้อนรับ
+Login
 </h2>
 
 
-<form action="/home">
+<form method="post">
+
+
+<input name="username"
+placeholder="ชื่อผู้ใช้">
+
+
+<input name="password"
+type="password"
+placeholder="รหัสผ่าน">
+
 
 <button>
 เข้าสู่ระบบ
 </button>
 
+
 </form>
 
 
-<div class="credit">
-Created by Ayano
-</div>
+<br>
+
+<a href="/register">
+สมัครสมาชิก
+</a>
 
 
 </div>
@@ -232,23 +208,20 @@ Created by Ayano
 
 
 
+
 # =====================
-# HOME
+# REGISTER
 # =====================
 
 
-home_page = f"""
-
-<!DOCTYPE html>
+register_page=f"""
 
 <html>
 
 <head>
 
 <meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-<title>Home</title>
+content="width=device-width,initial-scale=1">
 
 {style}
 
@@ -262,16 +235,82 @@ content="width=device-width, initial-scale=1.0">
 
 
 <h2>
-กรอกชื่อ
+สมัครสมาชิก
 </h2>
 
 
 <form method="post">
 
 
-<input
-name="name"
-placeholder="ชื่อของคุณ">
+<input name="username"
+placeholder="ชื่อผู้ใช้">
+
+
+<input name="password"
+type="password"
+placeholder="รหัสผ่าน">
+
+
+<button>
+สมัคร
+</button>
+
+
+</form>
+
+
+<a href="/">
+กลับหน้า Login
+</a>
+
+
+</div>
+
+
+</body>
+
+</html>
+
+"""
+
+
+
+
+# =====================
+# HOME
+# =====================
+
+
+home_page=f"""
+
+<html>
+
+<head>
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+{style}
+
+</head>
+
+
+<body>
+
+
+<div class="box">
+
+
+<h2>
+สวัสดี {{user}}
+</h2>
+
+
+<form method="post">
+
+
+<input name="content"
+placeholder="บันทึกข้อมูล">
 
 
 <button>
@@ -282,12 +321,15 @@ placeholder="ชื่อของคุณ">
 </form>
 
 
+<a href="/logout">
+ออกจากระบบ
+</a>
+
 
 </div>
 
 
 </body>
-
 
 </html>
 
@@ -296,105 +338,114 @@ placeholder="ชื่อของคุณ">
 
 
 # =====================
-# MENU
+# ROUTES
 # =====================
 
 
-menu_page = f"""
 
-<!DOCTYPE html>
-
-<html>
-
-<head>
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-<title>Menu</title>
-
-{style}
-
-</head>
-
-
-<body>
-
-
-<div class="box">
-
-
-<h2>
-เลือกเมนู
-</h2>
-
-
-<form action="/open">
-
-<button>
-
-🌐 เปิดเว็บไซต์
-
-</button>
-
-</form>
-
-
-
-<form action="/home">
-
-<button>
-
-🏠 กลับหน้าหลัก
-
-</button>
-
-</form>
-
-
-
-</div>
-
-
-</body>
-
-
-</html>
-
-"""
-
-
-
-@app.route("/")
+@app.route("/",methods=["GET","POST"])
 def login():
+
+    if request.method=="POST":
+
+
+        username=request.form["username"]
+
+        password=request.form["password"]
+
+
+
+        conn=sqlite3.connect("users.db")
+
+        cur=conn.cursor()
+
+
+        cur.execute(
+        "SELECT password FROM users WHERE username=?",
+        (username,)
+        )
+
+
+        user=cur.fetchone()
+
+
+        conn.close()
+
+
+
+        if user and check_password_hash(
+            user[0],
+            password
+        ):
+
+
+            session["user"]=username
+
+
+            return redirect("/home")
+
+
 
     return render_template_string(login_page)
 
 
 
-@app.route("/home", methods=["GET","POST"])
-def home():
+
+
+@app.route("/register",methods=["GET","POST"])
+def register():
 
     if request.method=="POST":
 
-        return render_template_string(menu_page)
+
+        username=request.form["username"]
+
+        password=generate_password_hash(
+            request.form["password"]
+        )
 
 
-    return render_template_string(home_page)
+        try:
+
+            conn=sqlite3.connect("users.db")
+
+            cur=conn.cursor()
+
+
+            cur.execute(
+            "INSERT INTO users(username,password) VALUES(?,?)",
+            (username,password)
+            )
+
+
+            conn.commit()
+
+            conn.close()
+
+
+            return redirect("/")
+
+        except:
+
+
+            return "ชื่อผู้ใช้นี้มีแล้ว"
 
 
 
-@app.route("/open")
-def open_web():
-
-    return """
-    <script>
-    window.location.href="https://zefoy.com/";
-    </script>
-    """
+    return render_template_string(register_page)
 
 
 
-if __name__=="__main__":
 
-    app.run(debug=True)
+
+@app.route("/home",methods=["GET","POST"])
+def home():
+
+
+    if "user" not in session:
+
+        return redirect("/")
+
+
+
+   
