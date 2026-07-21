@@ -1,82 +1,55 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template_string, request
 
 app = Flask(__name__)
 
 
-@app.route("/")
-def login():
-    return render_template("login.html")
-
-
-@app.route("/home", methods=["GET", "POST"])
-def home():
-
-    message = ""
-
-    if request.method == "POST":
-        data = request.form["data"]
-        message = "บันทึกข้อมูลแล้ว: " + data
-
-    return render_template(
-        "home.html",
-        message=message
-    )
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
+# หน้า Login
+login_page = """
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
 <meta charset="UTF-8">
 
-<title>Login</title>
+<title>Ayano Login</title>
 
 <style>
 
 body{
-background:#4dabf7;
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-font-family:Arial;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#74c0fc,#228be6);
+    font-family:Arial;
 }
-
 
 .box{
-
-background:white;
-padding:40px;
-border-radius:20px;
-text-align:center;
-
+    background:white;
+    padding:40px;
+    border-radius:20px;
+    text-align:center;
+    width:300px;
 }
 
-
 button{
-
-background:#1976d2;
-color:white;
-border:none;
-padding:15px 40px;
-border-radius:10px;
-font-size:18px;
-
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:10px;
+    background:#1976d2;
+    color:white;
+    font-size:18px;
 }
 
 </style>
 
 </head>
 
-
 <body>
-
 
 <div class="box">
 
-<h1>Ayano</h1>
+<h1>ยินดีต้อนรับ</h1>
 
 <form action="/home">
 
@@ -88,10 +61,14 @@ font-size:18px;
 
 </div>
 
-
 </body>
-
 </html>
+"""
+
+
+# หน้า Home
+home_page = """
+
 <!DOCTYPE html>
 <html lang="th">
 
@@ -99,19 +76,18 @@ font-size:18px;
 
 <meta charset="UTF-8">
 
-<title>Home</title>
-
+<title>Ayano Home</title>
 
 <style>
 
 body{
 
-background:#74c0fc;
-font-family:Arial;
 height:100vh;
 display:flex;
 justify-content:center;
 align-items:center;
+background:#74c0fc;
+font-family:Arial;
 
 }
 
@@ -146,7 +122,6 @@ border-radius:10px;
 
 </style>
 
-
 </head>
 
 
@@ -165,8 +140,8 @@ border-radius:10px;
 
 
 <input 
-name="data"
-placeholder="กรอกข้อมูล">
+name="text"
+placeholder="พิมพ์ข้อมูล">
 
 
 <br><br>
@@ -182,7 +157,7 @@ placeholder="กรอกข้อมูล">
 
 <p>
 
-{{ message }}
+{{ result }}
 
 </p>
 
@@ -193,3 +168,36 @@ placeholder="กรอกข้อมูล">
 </body>
 
 </html>
+
+"""
+
+
+@app.route("/")
+def login():
+
+    return render_template_string(login_page)
+
+
+
+@app.route("/home", methods=["GET","POST"])
+def home():
+
+    result = ""
+
+    if request.method == "POST":
+
+        data = request.form["text"]
+
+        result = "คุณบันทึก: " + data
+
+
+    return render_template_string(
+        home_page,
+        result=result
+    )
+
+
+
+if __name__ == "__main__":
+
+    app.run(debug=True)
