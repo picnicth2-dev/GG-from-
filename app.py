@@ -9,23 +9,26 @@ login_page = """
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Ayano</title>
 
 <style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
 
 body{
-    margin:0;
     height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
-    font-family:Arial,sans-serif;
-    background:linear-gradient(135deg,#6dd5fa,#2980b9);
+    background:linear-gradient(135deg,#74c0fc,#4dabf7,#228be6);
 }
 
 .box{
-    width:350px;
+    width:360px;
     padding:40px;
     text-align:center;
     border-radius:20px;
@@ -36,26 +39,25 @@ body{
 
 h1{
     color:white;
+    margin-bottom:25px;
 }
 
 button{
     width:100%;
     padding:15px;
-    margin-top:20px;
     border:none;
     border-radius:12px;
     cursor:pointer;
     font-size:18px;
     color:white;
-    background:#1e88e5;
+    background:#1976d2;
 }
 
 .credit{
     margin-top:20px;
     color:white;
-    opacity:.8;
+    opacity:.85;
 }
-
 </style>
 
 </head>
@@ -86,84 +88,68 @@ home_page = """
 <!DOCTYPE html>
 <html lang="th">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>หน้าหลัก</title>
+<title>Ayano</title>
 
 <style>
 
-body{
-
+*{
 margin:0;
-height:100vh;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
 
+body{
+height:100vh;
 display:flex;
 justify-content:center;
 align-items:center;
-
-font-family:Arial,sans-serif;
-
-background:linear-gradient(135deg,#6dd5fa,#2980b9);
-
+background:linear-gradient(135deg,#74c0fc,#4dabf7,#228be6);
 }
 
 .box{
-
-width:350px;
-padding:40px;
-
-text-align:center;
-
+width:400px;
+padding:35px;
 border-radius:20px;
-
 background:rgba(255,255,255,.18);
-
 backdrop-filter:blur(15px);
-
 box-shadow:0 10px 30px rgba(0,0,0,.25);
-
+text-align:center;
 }
 
 h2{
-
 color:white;
-
+margin-bottom:20px;
 }
 
-a{
-
-text-decoration:none;
-
+input{
+width:100%;
+padding:14px;
+border:none;
+border-radius:10px;
+margin-bottom:20px;
+font-size:16px;
 }
 
 button{
-
 width:100%;
-padding:15px;
-
-margin-top:20px;
-
+padding:14px;
 border:none;
-border-radius:12px;
-
+border-radius:10px;
+font-size:17px;
 cursor:pointer;
-
-font-size:18px;
-
+background:#1976d2;
 color:white;
-
-background:#43a047;
-
+margin-top:10px;
 }
 
 .credit{
-
 margin-top:20px;
 color:white;
-opacity:.8;
-
+opacity:.85;
 }
 
 </style>
@@ -174,46 +160,4 @@ opacity:.8;
 
 <div class="box">
 
-<h2>เลือกสิ่งที่ต้องการ</h2>
-
-<a href="https://example.com" target="_blank">
-
-<button>
-เปิดเว็บไซต์
-</button>
-
-</a>
-
-<br>
-
-<a href="/">
-
-<button style="background:#f57c00;">
-กลับหน้าแรก
-</button>
-
-</a>
-
-<div class="credit">
-
-Created by Ayano
-
-</div>
-
-</div>
-
-</body>
-</html>
-"""
-
-@app.route("/")
-def login():
-    return render_template_string(login_page)
-
-@app.route("/home")
-def home():
-    return render_template_string(home_page)
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+<h2>ใส่ลิงก์เพื่อเปิดเว็บไซต์</h
