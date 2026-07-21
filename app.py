@@ -1,163 +1,195 @@
-from flask import Flask, render_template_string
-import os
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-login_page = """
+
+@app.route("/")
+def login():
+    return render_template("login.html")
+
+
+@app.route("/home", methods=["GET", "POST"])
+def home():
+
+    message = ""
+
+    if request.method == "POST":
+        data = request.form["data"]
+        message = "บันทึกข้อมูลแล้ว: " + data
+
+    return render_template(
+        "home.html",
+        message=message
+    )
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ayano</title>
 
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial,sans-serif;
-}
-
-body{
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:linear-gradient(135deg,#74c0fc,#4dabf7,#228be6);
-}
-
-.box{
-    width:360px;
-    padding:40px;
-    text-align:center;
-    border-radius:20px;
-    background:rgba(255,255,255,.18);
-    backdrop-filter:blur(15px);
-    box-shadow:0 10px 30px rgba(0,0,0,.25);
-}
-
-h1{
-    color:white;
-    margin-bottom:25px;
-}
-
-button{
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:12px;
-    cursor:pointer;
-    font-size:18px;
-    color:white;
-    background:#1976d2;
-}
-
-.credit{
-    margin-top:20px;
-    color:white;
-    opacity:.85;
-}
-</style>
-
-</head>
-
-<body>
-
-<div class="box">
-
-<h1>ยินดีต้อนรับ</h1>
-
-<form action="/home">
-<button type="submit">
-เข้าสู่ระบบ
-</button>
-</form>
-
-<div class="credit">
-Created by Ayano
-</div>
-
-</div>
-
-</body>
-</html>
-"""
-
-home_page = """
-<!DOCTYPE html>
-<html lang="th">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Ayano</title>
+<title>Login</title>
 
 <style>
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
 body{
+background:#4dabf7;
 height:100vh;
 display:flex;
 justify-content:center;
 align-items:center;
-background:linear-gradient(135deg,#74c0fc,#4dabf7,#228be6);
+font-family:Arial;
 }
+
 
 .box{
-width:400px;
-padding:35px;
+
+background:white;
+padding:40px;
 border-radius:20px;
-background:rgba(255,255,255,.18);
-backdrop-filter:blur(15px);
-box-shadow:0 10px 30px rgba(0,0,0,.25);
 text-align:center;
+
 }
 
-h2{
-color:white;
-margin-bottom:20px;
-}
-
-input{
-width:100%;
-padding:14px;
-border:none;
-border-radius:10px;
-margin-bottom:20px;
-font-size:16px;
-}
 
 button{
-width:100%;
-padding:14px;
-border:none;
-border-radius:10px;
-font-size:17px;
-cursor:pointer;
+
 background:#1976d2;
 color:white;
-margin-top:10px;
-}
+border:none;
+padding:15px 40px;
+border-radius:10px;
+font-size:18px;
 
-.credit{
-margin-top:20px;
-color:white;
-opacity:.85;
 }
 
 </style>
 
 </head>
 
+
 <body>
+
 
 <div class="box">
 
-<h2>ใส่ลิงก์เพื่อเปิดเว็บไซต์</h
+<h1>Ayano</h1>
+
+<form action="/home">
+
+<button>
+เข้าสู่ระบบ
+</button>
+
+</form>
+
+</div>
+
+
+</body>
+
+</html>
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Home</title>
+
+
+<style>
+
+body{
+
+background:#74c0fc;
+font-family:Arial;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+
+}
+
+
+.box{
+
+background:white;
+padding:40px;
+border-radius:20px;
+text-align:center;
+
+}
+
+
+input{
+
+padding:12px;
+width:250px;
+
+}
+
+
+button{
+
+padding:12px 30px;
+background:#1976d2;
+color:white;
+border:none;
+border-radius:10px;
+
+}
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<div class="box">
+
+
+<h2>
+หน้าหลัก
+</h2>
+
+
+<form method="post">
+
+
+<input 
+name="data"
+placeholder="กรอกข้อมูล">
+
+
+<br><br>
+
+
+<button>
+บันทึก
+</button>
+
+
+</form>
+
+
+<p>
+
+{{ message }}
+
+</p>
+
+
+</div>
+
+
+</body>
+
+</html>
