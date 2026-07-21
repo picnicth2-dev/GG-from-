@@ -3,55 +3,190 @@ from flask import Flask, render_template_string, request
 app = Flask(__name__)
 
 
-# =========================
-# หน้า Login
-# =========================
-
-login_page = """
-
-<!DOCTYPE html>
-<html lang="th">
-
-<head>
-
-<meta charset="UTF-8">
-
-<title>Ayano Login</title>
-
+style = """
 <style>
 
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Arial',sans-serif;
+}
+
+
 body{
-    height:100vh;
+
+    min-height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
-    background:linear-gradient(135deg,#74c0fc,#228be6);
-    font-family:Arial;
+    padding:20px;
+
+    background:
+    linear-gradient(135deg,
+    #74c0fc,
+    #228be6);
+
 }
 
+
+/* กล่องหลัก */
+
 .box{
-    background:white;
-    padding:40px;
-    border-radius:20px;
+
+    width:100%;
+    max-width:360px;
+
+    padding:30px 25px;
+
+    background:
+    rgba(255,255,255,0.20);
+
+    backdrop-filter:blur(15px);
+
+    border-radius:25px;
+
     text-align:center;
-    width:300px;
-    box-shadow:0 10px 30px #555;
+
+    box-shadow:
+    0 15px 40px rgba(0,0,0,.25);
+
+    animation:
+    show .5s ease;
+
 }
+
+
+@keyframes show{
+
+from{
+
+opacity:0;
+transform:translateY(30px);
+
+}
+
+to{
+
+opacity:1;
+transform:translateY(0);
+
+}
+
+}
+
+
+
+h1,h2{
+
+color:white;
+
+margin-bottom:25px;
+
+font-size:28px;
+
+}
+
+
+
+/* ช่องกรอก */
+
+input{
+
+width:100%;
+
+padding:15px;
+
+border:none;
+
+outline:none;
+
+border-radius:15px;
+
+font-size:16px;
+
+margin-bottom:15px;
+
+}
+
+
+
+/* ปุ่ม */
 
 button{
 
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:10px;
-    background:#1976d2;
-    color:white;
-    font-size:18px;
-    cursor:pointer;
+width:100%;
+
+padding:15px;
+
+border:none;
+
+border-radius:15px;
+
+background:#1976d2;
+
+color:white;
+
+font-size:18px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+margin-top:10px;
+
+transition:.2s;
 
 }
 
+
+
+button:active{
+
+transform:scale(.95);
+
+}
+
+
+
+.credit{
+
+color:white;
+
+margin-top:20px;
+
+font-size:14px;
+
+opacity:.8;
+
+}
+
+
+
 </style>
+"""
+
+
+
+# =====================
+# LOGIN
+# =====================
+
+
+login_page = f"""
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Ayano</title>
+
+{style}
 
 </head>
 
@@ -61,9 +196,15 @@ button{
 
 <div class="box">
 
+
 <h1>
-ยินดีต้อนรับ
+Ayano
 </h1>
+
+
+<h2>
+ยินดีต้อนรับ
+</h2>
 
 
 <form action="/home">
@@ -75,9 +216,9 @@ button{
 </form>
 
 
-<p>
+<div class="credit">
 Created by Ayano
-</p>
+</div>
 
 
 </div>
@@ -90,72 +231,26 @@ Created by Ayano
 """
 
 
-# =========================
-# หน้าหลัก
-# =========================
 
-home_page = """
+# =====================
+# HOME
+# =====================
+
+
+home_page = f"""
 
 <!DOCTYPE html>
-<html lang="th">
 
+<html>
 
 <head>
 
-<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-<title>Ayano Home</title>
+<title>Home</title>
 
-
-<style>
-
-body{
-
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-background:#74c0fc;
-font-family:Arial;
-
-}
-
-
-.box{
-
-background:white;
-padding:40px;
-border-radius:20px;
-text-align:center;
-
-}
-
-
-input{
-
-padding:12px;
-width:250px;
-border-radius:10px;
-border:1px solid #ccc;
-
-}
-
-
-button{
-
-padding:12px 30px;
-margin-top:15px;
-background:#1976d2;
-color:white;
-border:none;
-border-radius:10px;
-cursor:pointer;
-
-}
-
-
-</style>
-
+{style}
 
 </head>
 
@@ -175,11 +270,8 @@ cursor:pointer;
 
 
 <input
-name="text"
-placeholder="ใส่ชื่อของคุณ">
-
-
-<br>
+name="name"
+placeholder="ชื่อของคุณ">
 
 
 <button>
@@ -189,10 +281,6 @@ placeholder="ใส่ชื่อของคุณ">
 
 </form>
 
-
-<p>
-{{result}}
-</p>
 
 
 </div>
@@ -206,67 +294,26 @@ placeholder="ใส่ชื่อของคุณ">
 """
 
 
-# =========================
-# หน้าตัวเลือก
-# =========================
+
+# =====================
+# MENU
+# =====================
 
 
-menu_page = """
+menu_page = f"""
 
 <!DOCTYPE html>
 
-<html lang="th">
-
+<html>
 
 <head>
 
-<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
 <title>Menu</title>
 
-
-<style>
-
-
-body{
-
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-background:linear-gradient(135deg,#74c0fc,#228be6);
-font-family:Arial;
-
-}
-
-
-.box{
-
-background:white;
-padding:40px;
-border-radius:20px;
-text-align:center;
-
-}
-
-
-button{
-
-width:250px;
-padding:15px;
-margin:10px;
-border:none;
-border-radius:10px;
-background:#1976d2;
-color:white;
-font-size:18px;
-cursor:pointer;
-
-}
-
-
-</style>
-
+{style}
 
 </head>
 
@@ -282,22 +329,24 @@ cursor:pointer;
 </h2>
 
 
-
 <form action="/open">
 
 <button>
-เปิดเว็บไซต์
+
+🌐 เปิดเว็บไซต์
+
 </button>
 
 </form>
 
 
 
-
 <form action="/home">
 
 <button>
-กลับหน้าหลัก
+
+🏠 กลับหน้าหลัก
+
 </button>
 
 </form>
@@ -316,11 +365,6 @@ cursor:pointer;
 
 
 
-# =========================
-# ระบบทำงาน
-# =========================
-
-
 @app.route("/")
 def login():
 
@@ -331,20 +375,12 @@ def login():
 @app.route("/home", methods=["GET","POST"])
 def home():
 
-    result = ""
-
-
-    if request.method == "POST":
-
-        name = request.form["text"]
+    if request.method=="POST":
 
         return render_template_string(menu_page)
 
 
-    return render_template_string(
-        home_page,
-        result=result
-    )
+    return render_template_string(home_page)
 
 
 
@@ -359,6 +395,6 @@ def open_web():
 
 
 
-if __name__ == "__main__":
+if __name__=="__main__":
 
     app.run(debug=True)
