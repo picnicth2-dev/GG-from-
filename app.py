@@ -474,3 +474,186 @@ x.type="password";
 
 
 """
+# =====================
+# LOGIN SYSTEM
+# =====================
+
+
+@app.route("/", methods=["GET","POST"])
+def login():
+
+    if request.method == "POST":
+
+        username = request.form["username"]
+
+        password = request.form["password"]
+
+
+        conn = sqlite3.connect("users.db")
+
+        cur = conn.cursor()
+
+
+        cur.execute(
+            "SELECT password FROM users WHERE username=?",
+            (username,)
+        )
+
+
+        user = cur.fetchone()
+
+
+        conn.close()
+
+
+
+        if user:
+
+
+            if check_password_hash(
+                user[0],
+                password
+            ):
+
+
+                session["user"] = username
+
+
+                return redirect("/home")
+
+
+            else:
+
+
+                return login_page(
+                """
+                <div class="message error">
+                ❌ รหัสผ่านผิด
+                </div>
+                """
+                )
+
+
+        else:
+
+
+            return login_page(
+            """
+            <div class="message error">
+            ❌ ไม่พบชื่อผู้ใช้นี้
+            </div>
+            """
+            )
+
+
+
+    return login_page()
+
+
+
+
+
+# =====================
+# REGISTER
+# =====================
+
+
+@app.route("/register", methods=["GET","POST"])
+def register():
+
+
+    if request.method == "POST":
+
+
+        username = request.form["username"]
+
+
+        password = generate_password_hash(
+            request.form["password"]
+        )
+
+
+
+        try:
+
+
+            conn = sqlite3.connect("users.db")
+
+            cur = conn.cursor()
+
+
+
+            cur.execute(
+                "INSERT INTO users(username,password) VALUES(?,?)",
+                (
+                    username,
+                    password
+                )
+            )
+
+
+            conn.commit()
+
+            conn.close()
+
+
+
+            return login_page(
+            """
+            <div class="message success">
+            ✅ สมัครสมาชิกสำเร็จ กรุณาเข้าสู่ระบบ
+            </div>
+            """
+            )
+
+
+
+        except sqlite3.IntegrityError:
+
+
+            return register_page(
+            """
+            <div class="message error">
+            ❌ ชื่อผู้ใช้นี้มีแล้ว
+            </div>
+            """
+            )
+
+
+
+    return register_page()
+
+
+
+
+
+# =====================
+# HOME
+# =====================
+
+
+@app.route("/home", methods=["GET","POST"])
+def home():
+
+
+    if "user" not in session:
+
+        return redirect("/")
+
+
+
+    conn = sqlite3.connect("users.db")
+
+    cur = conn.cursor()
+
+
+
+    if request.method == "POST":
+
+
+        content = request.form["content"]
+
+
+        cur.execute(
+            """
+           
